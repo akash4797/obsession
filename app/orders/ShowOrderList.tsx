@@ -23,7 +23,10 @@ import { Switch } from "@/components/ui/switch";
 
 interface ShowOrderListProps {
   orders: Order[];
-  refresh: () => void;
+  refresh: (
+    data?: { orders: Order[] },
+    options?: { revalidate?: boolean }
+  ) => Promise<void>;
 }
 
 const ShowOrderList = ({ orders, refresh }: ShowOrderListProps) => {
@@ -87,7 +90,22 @@ const ShowOrderList = ({ orders, refresh }: ShowOrderListProps) => {
                   <Switch
                     checked={order.fields.adminDeliver}
                     onCheckedChange={async (checked) => {
+                      // Optimistically update the UI
+                      const optimisticData = {
+                        orders: orders.map((o) =>
+                          o.sys.id === order.sys.id
+                            ? {
+                                ...o,
+                                fields: { ...o.fields, adminDeliver: checked },
+                              }
+                            : o
+                        ),
+                      };
+
                       try {
+                        // Optimistically update the cache
+                        await refresh(optimisticData, { revalidate: false });
+
                         const response = await fetch(
                           "/api/adminDeliverChange",
                           {
@@ -105,10 +123,13 @@ const ShowOrderList = ({ orders, refresh }: ShowOrderListProps) => {
                         if (!response.ok) throw new Error("Failed to update");
 
                         toast.success("Admin delivery status updated");
-                        refresh(); // Use refresh instead of window.location.reload()
+                        // Revalidate after successful update
+                        refresh();
                       } catch (error) {
                         console.error(error);
                         toast.error("Failed to update admin delivery status");
+                        // Revert optimistic update on error
+                        refresh();
                       }
                     }}
                   />
