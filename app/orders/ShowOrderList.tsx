@@ -35,14 +35,15 @@ const ShowOrderList = ({ orders, refresh }: ShowOrderListProps) => {
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const filteredOrders = React.useMemo(() => {
+    if (!orders || orders.length === 0) return [];
+
     return orders
       .filter((order) =>
         order.fields.customerText
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => {
-        // Sort by newest first using sys.id (which contains timestamp)
         return b.sys.id.localeCompare(a.sys.id);
       });
   }, [orders, searchQuery]);
