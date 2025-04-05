@@ -31,6 +31,22 @@ const OrderList = () => {
     order: (typeof orderList)[0],
     orderIndex: number
   ) => {
+    if (!order.customerName?.trim()) {
+      toast.error("Customer name is required");
+      return;
+    }
+    if (!order.customerPhone?.trim()) {
+      toast.error("Customer phone number is required");
+      return;
+    }
+    if (!order.customerAddress?.trim()) {
+      toast.error("Customer address is required");
+      return;
+    }
+    if (!order.products?.length) {
+      toast.error("Order must have at least one product");
+      return;
+    }
     const confirmAdminDeliver = window.confirm(
       "Do you want to mark this as admin delivery?"
     );

@@ -31,3 +31,16 @@ export interface Combo extends EntrySkeletonType {
   };
   contentTypeId: string;
 }
+
+export interface Order extends EntrySkeletonType {
+  fields: {
+    customerName: string;
+    customerText: string;
+    adminText: string;
+    adminDeliver: boolean;
+  };
+  sys: {
+    id: string;
+  };
+  contentTypeId: string;
+}
