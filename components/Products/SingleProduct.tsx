@@ -75,6 +75,8 @@ const SingleProduct = ({
                       `Gender: ${product.fields.gender}`,
                     "classification" in product.fields &&
                       `Classification: ${product.fields.classification}`,
+                    "topNote" in product.fields &&
+                      `Top Note: ${product.fields.topNote}`,
                     "strength" in product.fields &&
                       `Strength: ${product.fields.strength}`,
                     "price10ml" in product.fields &&
