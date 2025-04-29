@@ -37,6 +37,7 @@ const CreateOrderModal = ({
       id: string;
       name: string;
       price: number;
+      size?: string;
     }>
   >([]);
 
@@ -53,19 +54,22 @@ const CreateOrderModal = ({
     );
   };
 
-  const handleComboSelection = (productId: string, index: number) => {
+  const handleComboSelection = (value: string, index: number) => {
+    const [productId, size] = value.split("-");
     const selectedProduct = products.find((p) => p.sys.id === productId);
     if (!selectedProduct) return;
 
+    let price = 0;
+    if (size === "10ml") price = selectedProduct.fields.price10ml || 0;
+    if (size === "30ml") price = selectedProduct.fields.price30ml || 0;
+    if (size === "120ml") price = selectedProduct.fields.price120ml || 0;
+
     const newSelections = [...comboSelections];
     newSelections[index] = {
-      id: selectedProduct.sys.id,
+      id: productId,
       name: selectedProduct.fields.name,
-      price:
-        selectedProduct.fields.price30ml ||
-        selectedProduct.fields.price120ml ||
-        selectedProduct.fields.price10ml ||
-        0,
+      price: price,
+      size: size || undefined, // Add size to the selection
     };
     setComboSelections(newSelections);
   };
@@ -234,7 +238,10 @@ const CreateOrderModal = ({
                     }).map((_, index) => (
                       <select
                         key={index}
-                        value={comboSelections[index]?.id || ""}
+                        value={
+                          `${comboSelections[index]?.id}-${comboSelections[index]?.size}` ||
+                          ""
+                        }
                         onChange={(e) =>
                           handleComboSelection(e.target.value, index)
                         }
@@ -242,18 +249,32 @@ const CreateOrderModal = ({
                       >
                         <option value="">Select Product {index + 1}</option>
                         {getAvailableProducts(index).map((p) => (
-                          <option key={p.sys.id} value={p.sys.id}>
-                            {p.fields.name}
-                            {p.fields.price10ml
-                              ? ` - 10ml: ${p.fields.price10ml}Tk`
-                              : ""}
-                            {p.fields.price30ml
-                              ? ` - 30ml: ${p.fields.price30ml}Tk`
-                              : ""}
-                            {p.fields.price120ml
-                              ? ` - 120ml: ${p.fields.price120ml}Tk`
-                              : ""}
-                          </option>
+                          <>
+                            {p.fields.price10ml && (
+                              <option
+                                key={`${p.sys.id}-10ml`}
+                                value={`${p.sys.id}-10ml`}
+                              >
+                                {p.fields.name} - 10ml: {p.fields.price10ml}Tk
+                              </option>
+                            )}
+                            {p.fields.price30ml && (
+                              <option
+                                key={`${p.sys.id}-30ml`}
+                                value={`${p.sys.id}-30ml`}
+                              >
+                                {p.fields.name} - 30ml: {p.fields.price30ml}Tk
+                              </option>
+                            )}
+                            {p.fields.price120ml && (
+                              <option
+                                key={`${p.sys.id}-120ml`}
+                                value={`${p.sys.id}-120ml`}
+                              >
+                                {p.fields.name} - 120ml: {p.fields.price120ml}Tk
+                              </option>
+                            )}
+                          </>
                         ))}
                       </select>
                     ))}
@@ -389,7 +410,7 @@ const CreateOrderModal = ({
                   };
 
                   setOrderList(
-                    orderList.map((o) =>
+                    orderList.map((o: OrderItem) =>
                       o.id === selectedOrder.id ? updatedOrder : o
                     )
                   );

@@ -90,15 +90,23 @@ const OrderList = () => {
     if (order.customerAddress) text += `Address: ${order.customerAddress}\n`;
     if (order.customerPhone) text += `Number: ${order.customerPhone}\n\n`;
 
-    text += "Product\n";
+    text += "Products\n";
     order.products?.forEach((product, index) => {
       if (product.type === "combo" && product.comboChoose) {
         text += `${index + 1}.${product.name} - ${product.price}\n`;
         product.comboChoose.forEach((item) => {
-          text += `  • ${item.name}\n`;
+          text += `  • ${item.name} ${item.size} \n`;
         });
       } else {
-        text += `${index + 1}.${product.name} - ${product.price}\n`;
+        if (product.type === "Perfume" && product?.size === "30ml") {
+          text += `${index + 1}.${product.name} (${product.type} ${
+            product?.size
+          }) - ${product.price}\n`;
+        } else {
+          text += `${index + 1}.${product.name} (${product.type}) - ${
+            product.price
+          }\n`;
+        }
       }
     });
 

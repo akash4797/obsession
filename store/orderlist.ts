@@ -18,6 +18,7 @@ export interface OrderItem {
       id: string;
       name: string;
       price: number;
+      size?: string;
     }[];
   }[];
   deliveryCharge?: number;
