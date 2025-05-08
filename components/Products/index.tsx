@@ -109,7 +109,7 @@ const Products = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         copyToClipboard(
-                          `${perfume.fields.name} 10ml - ${perfume.fields?.price10ml} Taka Only`
+                          `${perfume.fields.name} 10ml - ${perfume.fields?.price10ml} Taka`
                         );
                       }}
                     >
@@ -128,7 +128,7 @@ const Products = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         copyToClipboard(
-                          `${perfume.fields.name} 30ml - ${perfume.fields?.price30ml} Taka Only`
+                          `${perfume.fields.name} 30ml - ${perfume.fields?.price30ml} Taka`
                         );
                       }}
                     >
@@ -147,7 +147,7 @@ const Products = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         copyToClipboard(
-                          `${perfume.fields.name} 120ml - ${perfume.fields?.price120ml} Taka Only`
+                          `${perfume.fields.name} 120ml - ${perfume.fields?.price120ml} Taka`
                         );
                       }}
                     >
@@ -187,7 +187,7 @@ const Products = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         copyToClipboard(
-                          `${mist.fields.name} 10ml - ${mist.fields?.price10ml} Taka Only`
+                          `${mist.fields.name} 10ml - ${mist.fields?.price10ml} Taka`
                         );
                       }}
                     >
@@ -206,7 +206,7 @@ const Products = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         copyToClipboard(
-                          `${mist.fields.name} 30ml - ${mist.fields?.price30ml} Taka Only`
+                          `${mist.fields.name} 30ml - ${mist.fields?.price30ml} Taka`
                         );
                       }}
                     >
@@ -225,7 +225,7 @@ const Products = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         copyToClipboard(
-                          `${mist.fields.name} 120ml - ${mist.fields?.price120ml} Taka Only`
+                          `${mist.fields.name} 120ml - ${mist.fields?.price120ml} Taka`
                         );
                       }}
                     >
@@ -264,7 +264,7 @@ const Products = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       copyToClipboard(
-                        `${comboItem.fields.name} - ${comboItem.fields?.price} Taka Only`
+                        `${comboItem.fields.name} - ${comboItem.fields?.price} Taka`
                       );
                     }}
                   >
