@@ -3,6 +3,8 @@ import SearchAndFilter from "@/components/SearchAndFilter";
 import { Product, Combo } from "@/lib/Skeleton";
 import Products from "@/components/Products";
 
+export const revalidate = 0;
+
 export default async function Home() {
   const productEntries = await client.getEntries<Product>({
     content_type: "product",
