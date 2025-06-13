@@ -46,12 +46,9 @@ const CreateOrderModal = ({
   if (!product) return null;
 
   const getAvailableProducts = (index: number) => {
-    return products.filter(
-      (p) =>
-        !comboSelections
-          .slice(0, index)
-          .some((selection) => selection?.id === p.sys.id)
-    );
+    // Allow selecting the same product multiple times
+    console.log(index);
+    return products;
   };
 
   const handleComboSelection = (value: string, index: number) => {

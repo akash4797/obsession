@@ -101,11 +101,13 @@ const OrderList = () => {
         if (product.type === "Perfume" && product?.size === "30ml") {
           text += `${index + 1}.${product.name} (${product.type} ${
             product?.size
-          }) - ${product.price}\n`;
+          }) - ${product.price} ${
+            product.quantity > 1 ? `(${product.quantity}x)` : ""
+          }\n`;
         } else {
           text += `${index + 1}.${product.name} (${product.type}) - ${
             product.price
-          }\n`;
+          } ${product.quantity > 1 ? `(${product.quantity}x)` : ""}\n`;
         }
       }
     });
