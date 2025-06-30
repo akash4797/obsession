@@ -92,12 +92,24 @@ const Products = ({
 
         toast.success("Image copied to clipboard");
       } else {
-        // Fallback for browsers that don't support clipboard.write
-        toast.error("Your browser doesn't support copying images to clipboard");
+        // Fallback for browsers that don't support clipboard.write (like iOS)
+        // Create a temporary link to open the image in a new tab
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.info("Your browser doesn't support copying images directly. The image has been opened in a new tab where you can save it manually.");
       }
     } catch (error) {
       console.error("Failed to copy image:", error);
-      toast.error("Failed to copy image to clipboard");
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to copy image: ${errorMessage}`);
     }
   };
 
