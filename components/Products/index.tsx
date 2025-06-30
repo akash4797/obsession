@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import SingleProduct from "./SingleProduct";
+import Image from "next/image";
 
 const Products = ({
   products,
@@ -45,6 +46,58 @@ const Products = ({
     } catch (error) {
       console.error("Failed to copy:", error);
       toast.error("Failed to copy");
+    }
+  };
+
+  const copyImageFromUrl = async (url: string) => {
+    try {
+      if (navigator.clipboard && "write" in navigator.clipboard) {
+        // Create an image element to load the image
+        const img = new globalThis.Image();
+        img.crossOrigin = "anonymous"; // Handle CORS if needed
+
+        // Set up a promise to wait for the image to load
+        const imageLoaded = new Promise<HTMLImageElement>((resolve, reject) => {
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error("Failed to load image"));
+        });
+
+        // Start loading the image
+        img.src = url;
+
+        // Wait for the image to load
+        await imageLoaded;
+
+        // Create a canvas to convert the image to PNG format
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Draw the image on the canvas
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Failed to get canvas context");
+        ctx.drawImage(img, 0, 0);
+
+        // Convert the canvas content to a PNG blob
+        const blob = await new Promise<Blob>((resolve) => {
+          canvas.toBlob((b) => resolve(b!), "image/png");
+        });
+
+        // Copy the PNG blob to clipboard
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "image/png": blob,
+          }),
+        ]);
+
+        toast.success("Image copied to clipboard");
+      } else {
+        // Fallback for browsers that don't support clipboard.write
+        toast.error("Your browser doesn't support copying images to clipboard");
+      }
+    } catch (error) {
+      console.error("Failed to copy image:", error);
+      toast.error("Failed to copy image to clipboard");
     }
   };
 
@@ -91,25 +144,29 @@ const Products = ({
             {filteredPerfumes.map((perfume) => (
               <div
                 key={perfume.sys.id}
-                className="min-w-[200px] p-4 border rounded-lg shadow space-y-1"
+                className="min-w-[200px] border rounded-lg shadow space-y-1"
                 onClick={() => {
                   setSelectedProduct(perfume);
                   setShowDrawer(true);
                 }}
               >
-                <h3 className="font-medium">{perfume.fields.name}</h3>
-                {perfume.fields.price10ml && (
-                  <div className="flex items-center">
-                    <p className="text-gray-600 text-xs">
-                      BDT{perfume.fields?.price10ml} - 10ml
-                    </p>
+                {perfume.fields.image?.fields.file.url && (
+                  <div className="w-full p-1 bg-gray-500 rounded-t-lg relative">
+                    <Image
+                      src={`https:${perfume.fields.image?.fields.file.url}`}
+                      alt={perfume.fields.name}
+                      width={100}
+                      height={100}
+                      className="w-full h-40 object-contain"
+                    />
                     <Button
                       size={"icon"}
+                      className="text-white absolute bottom-0 left-0"
                       variant={"ghost"}
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(
-                          `${perfume.fields.name} 10ml - ${perfume.fields?.price10ml} Taka`
+                        copyImageFromUrl(
+                          `https:${perfume.fields.image?.fields.file.url}`
                         );
                       }}
                     >
@@ -117,44 +174,66 @@ const Products = ({
                     </Button>
                   </div>
                 )}
-                {perfume.fields.price30ml && (
-                  <div className="flex items-center">
-                    <p className="text-gray-600 text-xs">
-                      BDT{perfume.fields?.price30ml} - 30ml
-                    </p>
-                    <Button
-                      size={"icon"}
-                      variant={"ghost"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(
-                          `${perfume.fields.name} 30ml - ${perfume.fields?.price30ml} Taka`
-                        );
-                      }}
-                    >
-                      <Copy />
-                    </Button>
-                  </div>
-                )}
-                {perfume.fields.price120ml && (
-                  <div className="flex items-center">
-                    <p className="text-gray-600 text-sm">
-                      BDT{perfume.fields?.price120ml} - 120ml
-                    </p>
-                    <Button
-                      size={"icon"}
-                      variant={"ghost"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(
-                          `${perfume.fields.name} 120ml - ${perfume.fields?.price120ml} Taka`
-                        );
-                      }}
-                    >
-                      <Copy />
-                    </Button>
-                  </div>
-                )}
+                <div className="p-4">
+                  <h3 className="font-medium">{perfume.fields.name}</h3>
+                  {perfume.fields.price10ml && (
+                    <div className="flex items-center">
+                      <p className="text-gray-600 text-xs">
+                        BDT{perfume.fields?.price10ml} - 10ml
+                      </p>
+                      <Button
+                        size={"icon"}
+                        variant={"ghost"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(
+                            `${perfume.fields.name} 10ml - ${perfume.fields?.price10ml} Taka`
+                          );
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                    </div>
+                  )}
+                  {perfume.fields.price30ml && (
+                    <div className="flex items-center">
+                      <p className="text-gray-600 text-xs">
+                        BDT{perfume.fields?.price30ml} - 30ml
+                      </p>
+                      <Button
+                        size={"icon"}
+                        variant={"ghost"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(
+                            `${perfume.fields.name} 30ml - ${perfume.fields?.price30ml} Taka`
+                          );
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                    </div>
+                  )}
+                  {perfume.fields.price120ml && (
+                    <div className="flex items-center">
+                      <p className="text-gray-600 text-sm">
+                        BDT{perfume.fields?.price120ml} - 120ml
+                      </p>
+                      <Button
+                        size={"icon"}
+                        variant={"ghost"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(
+                            `${perfume.fields.name} 120ml - ${perfume.fields?.price120ml} Taka`
+                          );
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -169,25 +248,29 @@ const Products = ({
             {filteredMists.map((mist) => (
               <div
                 key={mist.sys.id}
-                className="min-w-[200px] p-4 border rounded-lg shadow space-y-1"
+                className="min-w-[200px] border rounded-lg shadow space-y-1"
                 onClick={() => {
                   setSelectedProduct(mist);
                   setShowDrawer(true);
                 }}
               >
-                <h3 className="font-medium">{mist.fields.name}</h3>
-                {mist.fields.price10ml && (
-                  <div className="flex items-center">
-                    <p className="text-gray-600 text-xs">
-                      BDT{mist.fields?.price10ml} - 10ml
-                    </p>
+                {mist.fields.image?.fields.file.url && (
+                  <div className="w-full p-1 bg-slate-500 rounded-t-lg relative">
+                    <Image
+                      src={`https:${mist.fields.image?.fields.file.url}`}
+                      alt={mist.fields.name}
+                      width={100}
+                      height={100}
+                      className="w-full h-40 object-contain"
+                    />
                     <Button
                       size={"icon"}
+                      className="text-white absolute bottom-0 left-0"
                       variant={"ghost"}
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(
-                          `${mist.fields.name} 10ml - ${mist.fields?.price10ml} Taka`
+                        copyImageFromUrl(
+                          `https:${mist.fields.image?.fields.file.url}`
                         );
                       }}
                     >
@@ -195,44 +278,66 @@ const Products = ({
                     </Button>
                   </div>
                 )}
-                {mist.fields.price30ml && (
-                  <div className="flex items-center">
-                    <p className="text-gray-600 text-xs">
-                      BDT{mist.fields?.price30ml} - 30ml
-                    </p>
-                    <Button
-                      size={"icon"}
-                      variant={"ghost"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(
-                          `${mist.fields.name} 30ml - ${mist.fields?.price30ml} Taka`
-                        );
-                      }}
-                    >
-                      <Copy />
-                    </Button>
-                  </div>
-                )}
-                {mist.fields.price120ml && (
-                  <div className="flex items-center">
-                    <p className="text-gray-600 text-xs">
-                      BDT{mist.fields?.price120ml} - 120ml
-                    </p>
-                    <Button
-                      size={"icon"}
-                      variant={"ghost"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(
-                          `${mist.fields.name} 120ml - ${mist.fields?.price120ml} Taka`
-                        );
-                      }}
-                    >
-                      <Copy />
-                    </Button>
-                  </div>
-                )}
+                <div className="p-4">
+                  <h3 className="font-medium">{mist.fields.name}</h3>
+                  {mist.fields.price10ml && (
+                    <div className="flex items-center">
+                      <p className="text-gray-600 text-xs">
+                        BDT{mist.fields?.price10ml} - 10ml
+                      </p>
+                      <Button
+                        size={"icon"}
+                        variant={"ghost"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(
+                            `${mist.fields.name} 10ml - ${mist.fields?.price10ml} Taka`
+                          );
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                    </div>
+                  )}
+                  {mist.fields.price30ml && (
+                    <div className="flex items-center">
+                      <p className="text-gray-600 text-xs">
+                        BDT{mist.fields?.price30ml} - 30ml
+                      </p>
+                      <Button
+                        size={"icon"}
+                        variant={"ghost"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(
+                            `${mist.fields.name} 30ml - ${mist.fields?.price30ml} Taka`
+                          );
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                    </div>
+                  )}
+                  {mist.fields.price120ml && (
+                    <div className="flex items-center">
+                      <p className="text-gray-600 text-xs">
+                        BDT{mist.fields?.price120ml} - 120ml
+                      </p>
+                      <Button
+                        size={"icon"}
+                        variant={"ghost"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(
+                            `${mist.fields.name} 120ml - ${mist.fields?.price120ml} Taka`
+                          );
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

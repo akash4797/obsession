@@ -11,6 +11,7 @@ export interface Product extends EntrySkeletonType {
     classification?: string;
     topNote?: string;
     strength?: string;
+    image?: Image;
   };
   contentTypeId: string;
   sys: {
@@ -43,4 +44,46 @@ export interface Order extends EntrySkeletonType {
     id: string;
   };
   contentTypeId: string;
+}
+
+export interface Image {
+  sys: {
+    space: {
+      sys: {
+        type: string;
+        linkType: string;
+        id: string;
+      };
+    };
+    id: string;
+    type: string;
+    createdAt: string;
+    updatedAt: string;
+    environment: {
+      sys: {
+        id: string;
+        type: string;
+        linkType: string;
+      };
+    };
+    publishedVersion: number;
+    revision: number;
+    locale: string;
+  };
+  fields: {
+    title: string;
+    description: string;
+    file: {
+      url: string;
+      details: {
+        size: number;
+        image: {
+          width: number;
+          height: number;
+        };
+      };
+      fileName: string;
+      contentType: string;
+    };
+  };
 }

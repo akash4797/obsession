@@ -10,7 +10,7 @@ const AllLayout: React.FC<AllLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow mb-20">{children}</main>
       <Footer />
     </div>
   );
