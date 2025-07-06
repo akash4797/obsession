@@ -13,6 +13,7 @@ import { Product, Combo } from "@/lib/Skeleton";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import CreateOrderModal from "./CreateOrderModal";
+import ShowProductImage from "./ShowProductImage";
 
 const SingleProduct = ({
   showDrawer,
@@ -99,6 +100,11 @@ const SingleProduct = ({
             </DrawerTitle>
           </DrawerHeader>
           <div className="px-4 flex flex-col gap-3">
+            {"image" in product.fields && product.fields.image?.fields.file.url && (
+              <div className="mb-4 h-[200px]">
+                <ShowProductImage imageUrl={`https:${product.fields.image.fields.file.url}`} />
+              </div>
+            )}
             <div className="text-sm grid grid-cols-2 gap-2">
               <div className="">
                 <span className="font-semibold">Price:</span>

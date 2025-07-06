@@ -11,8 +11,6 @@ export default async function Home() {
     limit: 300,
   });
 
-  console.log(productEntries.items[0].fields.image);
-
   const comboEntries = await client.getEntries<Combo>({
     content_type: "combo",
     limit: 300,

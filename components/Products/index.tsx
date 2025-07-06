@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { Product, Combo } from "@/lib/Skeleton";
 import { useAtomValue } from "jotai";
-import { searchAtom } from "@/store/search";
+import { searchAtom, filterGenderAtom } from "@/store/search";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import SingleProduct from "./SingleProduct";
-import Image from "next/image";
+import ShowProductImage from "./ShowProductImage";
 
 const Products = ({
   products,
@@ -17,6 +17,7 @@ const Products = ({
   combo: Combo[];
 }) => {
   const search = useAtomValue(searchAtom);
+  const filterGender = useAtomValue(filterGenderAtom);
   const [filteredPerfumes, setFilteredPerfumes] = useState<Product[]>([]);
   const [filteredMists, setFilteredMists] = useState<Product[]>([]);
   const [filteredCombos, setFilteredCombos] = useState<Combo[]>([]);
@@ -47,6 +48,26 @@ const Products = ({
       console.error("Failed to copy:", error);
       toast.error("Failed to copy");
     }
+  };
+
+  const copyAllFilteredProductList = (type: "Perfume" | "Mist" | "Combo") => {
+    let productList: string[] = [];
+
+    if (type === "Perfume") {
+      productList = filteredPerfumes.map((product) => {
+        return `${product.fields.name} - ${product.fields.price10ml} (10ml) - ${product.fields.price30ml} (30ml)`;
+      });
+    } else if (type === "Mist") {
+      productList = filteredMists.map((product) => {
+        return `${product.fields.name} - ${product.fields.price120ml} (120ml)`;
+      });
+    } else if (type === "Combo") {
+      productList = filteredCombos.map((product) => {
+        return `${product.fields.name} - ${product.fields.price}`;
+      });
+    }
+
+    copyToClipboard(productList.join("\n"));
   };
 
   const copyImageFromUrl = async (url: string) => {
@@ -94,21 +115,24 @@ const Products = ({
       } else {
         // Fallback for browsers that don't support clipboard.write (like iOS)
         // Create a temporary link to open the image in a new tab
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
         // Append to body, click, and remove
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        toast.info("Your browser doesn't support copying images directly. The image has been opened in a new tab where you can save it manually.");
+
+        toast.info(
+          "Your browser doesn't support copying images directly. The image has been opened in a new tab where you can save it manually."
+        );
       }
     } catch (error) {
       console.error("Failed to copy image:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to copy image: ${errorMessage}`);
     }
   };
@@ -123,7 +147,9 @@ const Products = ({
         (product.fields.name.toLowerCase().includes(searchLower) ||
           product.fields.classification?.toLowerCase().includes(searchLower) ||
           product.fields.topNote?.toLowerCase().includes(searchLower) ||
-          product.fields.price10ml?.toString().includes(searchLower))
+          product.fields.price10ml?.toString().includes(searchLower)) &&
+        (filterGender === "all" ||
+          product.fields.gender?.toLowerCase() === filterGender)
     );
 
     const mists = products.filter(
@@ -132,7 +158,9 @@ const Products = ({
         (product.fields.name.toLowerCase().includes(searchLower) ||
           product.fields.classification?.toLowerCase().includes(searchLower) ||
           product.fields.topNote?.toLowerCase().includes(searchLower) ||
-          product.fields.price120ml?.toString().includes(searchLower))
+          product.fields.price120ml?.toString().includes(searchLower)) &&
+        (filterGender === "all" ||
+          product.fields.gender?.toLowerCase() === filterGender)
     );
 
     const combos = combo.filter(
@@ -144,14 +172,26 @@ const Products = ({
     setFilteredPerfumes(perfumes);
     setFilteredMists(mists);
     setFilteredCombos(combos);
-  }, [search, products, combo]);
+  }, [search, filterGender, products, combo]);
 
   return (
     <div className="flex flex-col gap-5 w-full">
       {/* Perfume Section */}
       {filteredPerfumes.length > 0 && (
         <section className="w-full">
-          <h2 className="font-semibold mb-4">Perfumes</h2>
+          <div className="flex items-center gap-4 mb-4">
+            <h2 className="font-semibold">Perfumes</h2>
+            <Button
+              size={"default"}
+              variant={"ghost"}
+              onClick={(e) => {
+                e.stopPropagation();
+                copyAllFilteredProductList("Perfume");
+              }}
+            >
+              <Copy /> Copy perfume list
+            </Button>
+          </div>
           <div className="flex overflow-x-auto gap-4 pb-4">
             {filteredPerfumes.map((perfume) => (
               <div
@@ -163,14 +203,8 @@ const Products = ({
                 }}
               >
                 {perfume.fields.image?.fields.file.url && (
-                  <div className="w-full p-1 bg-gray-500 rounded-t-lg relative">
-                    <Image
-                      src={`https:${perfume.fields.image?.fields.file.url}`}
-                      alt={perfume.fields.name}
-                      width={100}
-                      height={100}
-                      className="w-full h-40 object-contain"
-                    />
+                  <div className="w-full h-[200px] p-1 bg-gray-500 rounded-t-lg relative" onClick={(e) => e.stopPropagation()}>
+                    <ShowProductImage imageUrl={`https:${perfume.fields.image?.fields.file.url}`} />
                     <Button
                       size={"icon"}
                       className="text-white absolute bottom-0 left-0"
@@ -255,7 +289,19 @@ const Products = ({
       {/* Mist Section */}
       {filteredMists.length > 0 && (
         <section className="w-full">
-          <h2 className="font-semibold mb-4">Mists</h2>
+          <div className="flex items-center gap-4 mb-4">
+            <h2 className="font-semibold">Mists</h2>
+            <Button
+              size={"default"}
+              variant={"ghost"}
+              onClick={(e) => {
+                e.stopPropagation();
+                copyAllFilteredProductList("Mist");
+              }}
+            >
+              <Copy /> Copy mist list
+            </Button>
+          </div>
           <div className="flex overflow-x-auto gap-4 pb-4">
             {filteredMists.map((mist) => (
               <div
@@ -267,14 +313,8 @@ const Products = ({
                 }}
               >
                 {mist.fields.image?.fields.file.url && (
-                  <div className="w-full p-1 bg-slate-500 rounded-t-lg relative">
-                    <Image
-                      src={`https:${mist.fields.image?.fields.file.url}`}
-                      alt={mist.fields.name}
-                      width={100}
-                      height={100}
-                      className="w-full h-40 object-contain"
-                    />
+                  <div className="w-full h-[200px] p-1 bg-slate-500 rounded-t-lg relative" onClick={(e) => e.stopPropagation()}>
+                    <ShowProductImage imageUrl={`https:${mist.fields.image?.fields.file.url}`} />
                     <Button
                       size={"icon"}
                       className="text-white absolute bottom-0 left-0"
