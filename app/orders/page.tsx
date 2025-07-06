@@ -3,18 +3,17 @@
 import React from "react";
 import { useOrders } from "@/hooks/fetchorders";
 import ShowOrderList from "./ShowOrderList";
-import { Loader2 } from "lucide-react";
 
 const Orders = () => {
-  const { orders, isLoading, isError, refresh } = useOrders();
+  const { orders, isError, refresh } = useOrders();
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen">
+  //       <Loader2 className="h-8 w-8 animate-spin" />
+  //     </div>
+  //   );
+  // }
 
   if (isError) {
     return <div>Error loading orders</div>;
