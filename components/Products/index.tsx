@@ -70,73 +70,6 @@ const Products = ({
     copyToClipboard(productList.join("\n"));
   };
 
-  const copyImageFromUrl = async (url: string) => {
-    try {
-      if (navigator.clipboard && "write" in navigator.clipboard) {
-        // Create an image element to load the image
-        const img = new globalThis.Image();
-        img.crossOrigin = "anonymous"; // Handle CORS if needed
-
-        // Set up a promise to wait for the image to load
-        const imageLoaded = new Promise<HTMLImageElement>((resolve, reject) => {
-          img.onload = () => resolve(img);
-          img.onerror = () => reject(new Error("Failed to load image"));
-        });
-
-        // Start loading the image
-        img.src = url;
-
-        // Wait for the image to load
-        await imageLoaded;
-
-        // Create a canvas to convert the image to PNG format
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        // Draw the image on the canvas
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Failed to get canvas context");
-        ctx.drawImage(img, 0, 0);
-
-        // Convert the canvas content to a PNG blob
-        const blob = await new Promise<Blob>((resolve) => {
-          canvas.toBlob((b) => resolve(b!), "image/png");
-        });
-
-        // Copy the PNG blob to clipboard
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            "image/png": blob,
-          }),
-        ]);
-
-        toast.success("Image copied to clipboard");
-      } else {
-        // Fallback for browsers that don't support clipboard.write (like iOS)
-        // Create a temporary link to open the image in a new tab
-        const link = document.createElement("a");
-        link.href = url;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-
-        // Append to body, click, and remove
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        toast.info(
-          "Your browser doesn't support copying images directly. The image has been opened in a new tab where you can save it manually."
-        );
-      }
-    } catch (error) {
-      console.error("Failed to copy image:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      toast.error(`Failed to copy image: ${errorMessage}`);
-    }
-  };
-
   useEffect(() => {
     // Filter products based on search term
     const searchLower = search.toLowerCase();
@@ -203,21 +136,13 @@ const Products = ({
                 }}
               >
                 {perfume.fields.image?.fields.file.url && (
-                  <div className="w-full h-[200px] p-1 bg-gray-500 rounded-t-lg relative" onClick={(e) => e.stopPropagation()}>
-                    <ShowProductImage imageUrl={`https:${perfume.fields.image?.fields.file.url}`} />
-                    <Button
-                      size={"icon"}
-                      className="text-white absolute bottom-0 left-0"
-                      variant={"ghost"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyImageFromUrl(
-                          `https:${perfume.fields.image?.fields.file.url}`
-                        );
-                      }}
-                    >
-                      <Copy />
-                    </Button>
+                  <div
+                    className="w-full h-[200px] p-1 bg-gray-500 rounded-t-lg relative"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ShowProductImage
+                      imageUrl={`https:${perfume.fields.image?.fields.file.url}`}
+                    />
                   </div>
                 )}
                 <div className="p-4">
@@ -313,21 +238,13 @@ const Products = ({
                 }}
               >
                 {mist.fields.image?.fields.file.url && (
-                  <div className="w-full h-[200px] p-1 bg-slate-500 rounded-t-lg relative" onClick={(e) => e.stopPropagation()}>
-                    <ShowProductImage imageUrl={`https:${mist.fields.image?.fields.file.url}`} />
-                    <Button
-                      size={"icon"}
-                      className="text-white absolute bottom-0 left-0"
-                      variant={"ghost"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyImageFromUrl(
-                          `https:${mist.fields.image?.fields.file.url}`
-                        );
-                      }}
-                    >
-                      <Copy />
-                    </Button>
+                  <div
+                    className="w-full h-[200px] p-1 bg-slate-500 rounded-t-lg relative"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ShowProductImage
+                      imageUrl={`https:${mist.fields.image?.fields.file.url}`}
+                    />
                   </div>
                 )}
                 <div className="p-4">
