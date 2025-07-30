@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import {
   Drawer,
   DrawerClose,
@@ -8,10 +7,11 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Button } from "../ui/button";
-import { Product, Combo } from "@/lib/Skeleton";
+import { Combo, Product } from "@/lib/Skeleton";
 import { Copy } from "lucide-react";
+import React from "react";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
 import CreateOrderModal from "./CreateOrderModal";
 // import ShowProductImage from "./ShowProductImage";
 
@@ -65,29 +65,27 @@ const SingleProduct = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   const text = [
-                    `${"desc" in product.fields ? "Combo Name: " : ""}${
-                      product.fields.name
-                    } ${
-                      "type" in product.fields ? `- ${product.fields.type}` : ""
+                    `${"desc" in product.fields ? "Combo Name: " : ""}${product.fields.name
+                    } ${"type" in product.fields ? `- ${product.fields.type}` : ""
                     }`,
                     "desc" in product.fields &&
-                      `Description: \n${product.fields.desc}`,
+                    `Description: \n${product.fields.desc}`,
                     "gender" in product.fields &&
-                      `Gender: ${product.fields.gender}`,
+                    `Gender: ${product.fields.gender}`,
                     "classification" in product.fields &&
-                      `Classification: ${product.fields.classification}`,
+                    `Classification: ${product.fields.classification}`,
                     "topNote" in product.fields &&
-                      `Top Note: ${product.fields.topNote}`,
+                    `Top Note: ${product.fields.topNote}`,
                     "strength" in product.fields &&
-                      `Strength: ${product.fields.strength}`,
+                    `Strength: ${product.fields.strength}`,
                     "price10ml" in product.fields &&
-                      `10ml: ${product.fields.price10ml} Taka`,
+                    `10ml: ${product.fields.price10ml} Taka`,
                     "price30ml" in product.fields &&
-                      `30ml: ${product.fields.price30ml} Taka`,
+                    `30ml: ${product.fields.price30ml} Taka`,
                     "price120ml" in product.fields &&
-                      `120ml: ${product.fields.price120ml} Taka`,
+                    `120ml: ${product.fields.price120ml} Taka`,
                     "price" in product.fields &&
-                      `Price: ${product.fields.price}`,
+                    `Price: ${product.fields.price}`,
                   ]
                     .filter(Boolean)
                     .join("\n");
@@ -158,6 +156,48 @@ const SingleProduct = ({
                   />
                 </div>
               )}
+              {product.contentTypeId === "combo" &&
+                !("anyCombo" in product.fields) &&
+                "products" in product.fields && (
+                  <Button
+                    size={"sm"}
+                    variant={"ghost"}
+                    className="mt-2"
+                    onClick={() => {
+                      if ("products" in product.fields) {
+                        const text = [
+                          `Combo Products: \n${product.fields.products
+                            .map((p: Product) => {
+                              const proText = [
+                                `${p.fields.name}: `,
+                                `${p.fields.price10ml
+                                  ? `${p.fields.price10ml} Taka (10ml)`
+                                  : ""
+                                }`,
+                                `${p.fields.price30ml
+                                  ? `${p.fields.price30ml} Taka (30ml) `
+                                  : ""
+                                }`,
+                                `${p.fields.price120ml
+                                  ? `${p.fields.price120ml} Taka (120ml)`
+                                  : ""
+                                }`,
+                              ]
+                                .filter(Boolean)
+                                .join("");
+                              return proText;
+                            })
+                            .join("\n")}`,
+                        ]
+                          .filter(Boolean)
+                          .join("\n");
+                        handleCopy(text);
+                      }
+                    }}
+                  >
+                    <Copy /> Combo Products
+                  </Button>
+                )}
             </div>
           </div>
           <DrawerFooter className="grid grid-cols-2">
